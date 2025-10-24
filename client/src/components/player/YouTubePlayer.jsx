@@ -162,6 +162,9 @@ export default function YouTubePlayer() {
       rel: 0,
       playsinline: 1,
     },
+    // Make iframe fill its container; container is absolute inset-0 with a 16:9 wrapper
+    width: '100%',
+    height: '100%',
   };
 
   const onReady = (e) => {
@@ -296,6 +299,8 @@ export default function YouTubePlayer() {
             <YouTube
               videoId={video.videoId || undefined}
               opts={opts}
+              className="w-full h-full"
+              iframeClassName="w-full h-full"
               onReady={onReady}
               onPlay={onPlay}
               onPause={onPause}
