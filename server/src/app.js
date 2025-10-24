@@ -24,7 +24,7 @@ function createApp() {
 
   // Health check
   app.get('/', (req, res) => {
-    res.send('Hello World!');
+    res.send('Hello World! hiiiiiiiiiiiiiiiiiiiiiiiiiiiii');
   });
 
   // 404 and error handlers
