@@ -1,12 +1,39 @@
-// Database connection helper (placeholder)
-// Replace with real mongoose connection if using MongoDB.
+// MongoDB connection helper using Mongoose
+const mongoose = require('mongoose');
+
+let isConnected = false;
 
 async function connectDB() {
-  const uri = process.env.MONGO_URI || 'mongodb://localhost:27017/synctube';
-  // e.g., using mongoose:
-  // const mongoose = require('mongoose');
-  // await mongoose.connect(uri);
-  return { uri };
+  const uri = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/synctube';
+
+  if (isConnected) return mongoose.connection;
+
+  // Recommended setting to silence strictQuery deprecation warnings
+  mongoose.set('strictQuery', false);
+
+  mongoose.connection.on('connected', () => {
+    isConnected = true;
+    // eslint-disable-next-line no-console
+    console.log('MongoDB connected');
+  });
+  mongoose.connection.on('error', (err) => {
+    // eslint-disable-next-line no-console
+    console.error('MongoDB connection error:', err);
+  });
+  mongoose.connection.on('disconnected', () => {
+    isConnected = false;
+    // eslint-disable-next-line no-console
+    console.warn('MongoDB disconnected');
+  });
+
+  await mongoose.connect(uri);
+  return mongoose.connection;
 }
 
-module.exports = { connectDB };
+async function disconnectDB() {
+  if (!isConnected) return;
+  await mongoose.connection.close();
+  isConnected = false;
+}
+
+module.exports = { connectDB, disconnectDB };

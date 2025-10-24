@@ -2,7 +2,9 @@ const express = require('express');
 const ctrl = require('../controllers/message.controller');
 
 const router = express.Router({ mergeParams: true });
-router.get('/:roomId', ctrl.list);
-router.post('/:roomId', ctrl.create);
+
+// Mounted at /rooms/:code/messages
+router.get('/', ctrl.list);
+router.post('/', ctrl.create);
 
 module.exports = router;
