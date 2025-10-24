@@ -4,7 +4,7 @@
 // - isOwn: boolean (optional) to style current user's messages
 
 export default function ChatMessage({ message, isOwn = false }) {
-  const { senderName, text, createdAt, system } = message || {};
+  const { senderName, text, createdAt, system, color } = message || {};
   const time = createdAt ? new Date(createdAt) : null;
   const timeStr = time
     ? time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
@@ -12,38 +12,22 @@ export default function ChatMessage({ message, isOwn = false }) {
 
   if (system) {
     return (
-      <div style={{ textAlign: 'center', margin: '6px 0' }}>
-        <span style={{ fontSize: 12, color: '#6b7280' }}>{text}</span>
+      <div className="text-center my-1">
+        <span className="text-xs text-gray-400">{text}</span>
       </div>
     );
   }
 
   return (
-    <div
-      style={{
-        display: 'grid',
-        gap: 2,
-        margin: '8px 0',
-        alignSelf: isOwn ? 'end' : 'start',
-        maxWidth: '100%'
-      }}
-    >
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-        <strong style={{ color: '#111827' }}>{isOwn ? 'You' : senderName}</strong>
-        <span style={{ fontSize: 12, color: '#9ca3af' }}>{timeStr}</span>
-      </div>
-      <div
-        style={{
-          background: isOwn ? '#dbeafe' : '#f3f4f6',
-          color: '#111827',
-          border: '1px solid #e5e7eb',
-          borderRadius: 8,
-          padding: '8px 10px',
-          whiteSpace: 'pre-wrap',
-          wordBreak: 'break-word'
-        }}
-      >
-        {text}
+    <div className={`w-full flex ${isOwn ? 'justify-end' : ''}`}>
+      <div className={`max-w-[16rem] border-gray-800 rounded-md border p-2 text-white ${isOwn ? 'bg-gray-500' : 'bg-gray-700'}`}>
+        <div className="flex flex-col">
+          {!isOwn && (
+            <span style={{ color: color || '#fff' }}>{senderName}</span>
+          )}
+          <span>{text}</span>
+          {timeStr ? <span className="text-[10px] text-gray-300 self-end mt-1">{timeStr}</span> : null}
+        </div>
       </div>
     </div>
   );

@@ -60,12 +60,14 @@ export default function ChatPanel() {
   };
 
   return (
-    <aside style={{ display: 'grid', gridTemplateRows: 'auto 1fr auto', gap: 8, height: '100%' }}>
-      <ChatUsers users={users} currentId={socketId} />
-      <div style={{ minHeight: 0 }}>
-        <MessageList messages={messages} currentId={socketId} currentName={name} />
+    <aside className="w-full h-full bg-gray-600 rounded sm:grid xl:grid-rows-[3fr,1fr] xl:grid-cols-[1fr] md:grid-cols-[3fr,1fr] md:grid-rows-[1fr] sm:grid-rows-[1fr] flex flex-col">
+      <div className="w-full rounded-t bg-gray-600 flex flex-col justify-between gap-2 py-2">
+        <div className="w-full xl:h-[60vh] h-[40vh] flex flex-col gap-2 overflow-y-auto overflow-x-hidden p-2">
+          <MessageList messages={messages} currentId={socketId} currentName={name} />
+        </div>
+        <div className="w-full px-2"><ChatInput onSend={send} /></div>
       </div>
-      <ChatInput onSend={send} />
+      <ChatUsers users={users} currentId={socketId} />
     </aside>
   );
 }

@@ -22,12 +22,9 @@ export default function MessageList({ messages = [], currentId, currentName }) {
   };
 
   return (
-    <div
-      ref={scrollRef}
-      style={{ overflowY: 'auto', border: '1px solid #e5e7eb', borderRadius: 8, padding: 8, height: '100%' }}
-    >
+    <div ref={scrollRef} className="w-full h-full flex flex-col gap-2 overflow-y-auto overflow-x-hidden p-2 bg-gray-600 rounded">
       {(!messages || messages.length === 0) ? (
-        <p style={{ color: '#6b7280' }}>No messages yet</p>
+        <p className="text-gray-400">No messages yet</p>
       ) : (
         messages.map((m) => (
           <ChatMessage

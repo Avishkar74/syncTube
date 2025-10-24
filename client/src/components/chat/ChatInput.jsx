@@ -1,13 +1,13 @@
 import { useState } from 'react';
 import Input from '../ui/Input';
-import Button from '../ui/Button';
 
 // ChatInput: text box + send button
 // Props: onSend(text: string)
 export default function ChatInput({ onSend }) {
   const [text, setText] = useState('');
 
-  const send = () => {
+
+  const handleSend = () => {
     const trimmed = text.trim();
     if (!trimmed) return;
     onSend?.(trimmed);
@@ -17,19 +17,25 @@ export default function ChatInput({ onSend }) {
   const onKeyDown = (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
-      send();
+      handleSend();
     }
   };
 
   return (
-    <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
+    <div className="w-full h-full px-2 flex items-center gap-2">
       <Input
         value={text}
         onChange={(e) => setText(e.target.value)}
         onKeyDown={onKeyDown}
-        placeholder="Type a message"
+        placeholder="Send a message..."
+        className="ring-0 focus:ring-gray-900"
       />
-      <Button onClick={send} disabled={!text.trim()}>Send</Button>
+      <div
+        onClick={handleSend}
+        className="w-10 h-10 rounded-full bg-gray-800 hover:bg-gray-700 flex justify-center items-center text-white font-bold cursor-pointer select-none"
+      >
+        {`>`}
+      </div>
     </div>
   );
 }

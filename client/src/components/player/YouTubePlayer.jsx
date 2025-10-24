@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom';
 import YouTube from 'react-youtube';
 import useSocket from '../../hooks/useSocket';
 import { apiGet } from '../../services/apiClient';
-import VideoPicker from './VideoPicker';
+// Video selection is handled from the header search; this component only renders the player.
 
 export default function YouTubePlayer() {
   const { id: code } = useParams();
@@ -125,29 +125,26 @@ export default function YouTubePlayer() {
     }
   };
 
-  const pickVideo = (item) => {
-    setVideo({ videoId: item.videoId, title: item.title });
-    if (socket) {
-      socket.emit('player:set-video', { code, videoId: item.videoId, title: item.title });
-    }
-  };
+  // Selecting a video is done via header search which emits 'player:set-video'
 
   return (
-    <div style={{ display: 'grid', gap: 12 }}>
-      <div style={{ position: 'relative', paddingTop: '56.25%' }}>
-        <div style={{ position: 'absolute', inset: 0 }}>
-          <YouTube
-            videoId={video.videoId || undefined}
-            opts={opts}
-            onReady={onReady}
-            onPlay={onPlay}
-            onPause={onPause}
-            onStateChange={onStateChange}
-          />
+    <div className="w-full h-full bg-[#282828] rounded overflow-hidden">
+      {video.videoId ? (
+        <div style={{ position: 'relative', paddingTop: '56.25%' }}>
+          <div style={{ position: 'absolute', inset: 0 }}>
+            <YouTube
+              videoId={video.videoId || undefined}
+              opts={opts}
+              onReady={onReady}
+              onPlay={onPlay}
+              onPause={onPause}
+              onStateChange={onStateChange}
+            />
+          </div>
         </div>
-      </div>
-
-      <VideoPicker onPick={pickVideo} />
+      ) : (
+        <div className="w-full h-full flex justify-center items-center font-mono"><span className="text-white text-4xl">NO VIDEO</span></div>
+      )}
     </div>
   );
 }
