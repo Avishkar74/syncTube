@@ -23,4 +23,7 @@ const RoomSchema = new Schema(
   { timestamps: true }
 );
 
+// Add an index to enforce unique room codes at the DB level
+RoomSchema.index({ code: 1 }, { unique: true });
+
 module.exports = mongoose.model('Room', RoomSchema);

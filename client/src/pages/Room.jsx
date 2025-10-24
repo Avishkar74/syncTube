@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import YouTubePlayer from '../components/player/YouTubePlayer';
 import ChatPanel from '../components/chat/ChatPanel';
@@ -10,10 +10,23 @@ export default function Room() {
   const { id: code } = useParams();
   const socket = useSocket();
   const name = useMemo(() => localStorage.getItem('syncTube:name') || 'Guest', []);
+  const joinedRef = useRef(false);
 
   useEffect(() => {
     if (!socket || !code) return;
-    socket.emit('room:join', { code, name });
+    const joinIfNeeded = () => {
+      if (joinedRef.current) return;
+      socket.emit('room:join', { code, name });
+      joinedRef.current = true;
+    };
+    if (socket.connected) joinIfNeeded();
+    socket.on('connect', joinIfNeeded);
+    const onDisconnect = () => { joinedRef.current = false; };
+    socket.on('disconnect', onDisconnect);
+    return () => {
+      socket.off('connect', joinIfNeeded);
+      socket.off('disconnect', onDisconnect);
+    };
   }, [socket, code, name]);
 
   return (

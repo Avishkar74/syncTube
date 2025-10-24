@@ -73,7 +73,7 @@ module.exports = function playerSocket(io, socket) {
         }
       );
       // Notify everyone except the sender to avoid echo
-      const payload = { positionSeconds: positionSeconds ?? 0 };
+      const payload = { positionSeconds: positionSeconds ?? 0, serverTime: Date.now() };
       console.log('[io] player:pause -> room', code, payload);
       socket.to(code).emit('player:pause', payload);
     } catch (err) {
@@ -102,6 +102,36 @@ module.exports = function playerSocket(io, socket) {
     } catch (err) {
       // eslint-disable-next-line no-console
       console.error('player:seek error', err);
+    }
+  });
+
+  // Allow clients to request the current snapshot at any time (e.g., after reconnect)
+  socket.on('player:resync', async ({ code }) => {
+    try {
+      if (!code) return;
+      const room = await Room.findOne({ code }).lean();
+      if (!room || !room.currentVideo || !room.currentVideo.videoId) return;
+      const v = room.currentVideo;
+      let pos = Math.floor(v.positionSeconds || 0);
+      if (v.isPlaying && v.updatedAt) {
+        const updatedAtMs = new Date(v.updatedAt).getTime();
+        if (Number.isFinite(updatedAtMs)) {
+          const elapsed = (Date.now() - updatedAtMs) / 1000;
+          pos = Math.max(0, Math.floor(pos + elapsed));
+        }
+      }
+      const payload = {
+        videoId: v.videoId,
+        title: v.title || '',
+        positionSeconds: pos,
+        isPlaying: !!v.isPlaying,
+        serverTime: Date.now(),
+      };
+      console.log('[io] player:resync -> emit snapshot', payload);
+      socket.emit('player:video', payload);
+    } catch (err) {
+      // eslint-disable-next-line no-console
+      console.error('player:resync error', err);
     }
   });
 };
