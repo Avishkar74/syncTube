@@ -1,11 +1,8 @@
-import { useEffect, useRef } from 'react';
-import { createSocket } from '../services/socket';
+import { useMemo } from 'react';
+import { getSocket } from '../services/socket';
 
+// Returns the shared Socket.IO client instance (singleton).
 export default function useSocket() {
-  const socketRef = useRef(null);
-  useEffect(() => {
-    socketRef.current = createSocket();
-    return () => socketRef.current?.disconnect?.();
-  }, []);
-  return socketRef.current;
+  const socket = useMemo(() => getSocket(), []);
+  return socket;
 }

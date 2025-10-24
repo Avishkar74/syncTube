@@ -5,6 +5,7 @@ module.exports = function playerSocket(io, socket) {
   socket.on('player:set-video', async ({ code, videoId, title }) => {
     try {
       if (!code || !videoId) return;
+      console.log('[io] player:set-video', { code, videoId, title });
       const now = new Date();
       await Room.updateOne(
         { code },
@@ -18,7 +19,13 @@ module.exports = function playerSocket(io, socket) {
           },
         }
       );
-      io.in(code).emit('player:video', { videoId, title: title || '' });
+      io.in(code).emit('player:video', {
+        videoId,
+        title: title || '',
+        positionSeconds: 0,
+        isPlaying: false,
+        serverTime: Date.now(),
+      });
     } catch (err) {
       // eslint-disable-next-line no-console
       console.error('player:set-video error', err);
@@ -40,7 +47,11 @@ module.exports = function playerSocket(io, socket) {
           },
         }
       );
-      io.in(code).emit('player:play', { positionSeconds: positionSeconds ?? 0 });
+      // include serverTime so clients can compensate network delay
+      // Notify everyone except the sender to avoid echo
+      const payload = { positionSeconds: positionSeconds ?? 0, serverTime: Date.now() };
+      console.log('[io] player:play -> room', code, payload);
+      socket.to(code).emit('player:play', payload);
     } catch (err) {
       // eslint-disable-next-line no-console
       console.error('player:play error', err);
@@ -61,7 +72,10 @@ module.exports = function playerSocket(io, socket) {
           },
         }
       );
-      io.in(code).emit('player:pause', { positionSeconds: positionSeconds ?? 0 });
+      // Notify everyone except the sender to avoid echo
+      const payload = { positionSeconds: positionSeconds ?? 0 };
+      console.log('[io] player:pause -> room', code, payload);
+      socket.to(code).emit('player:pause', payload);
     } catch (err) {
       // eslint-disable-next-line no-console
       console.error('player:pause error', err);
@@ -81,7 +95,10 @@ module.exports = function playerSocket(io, socket) {
           },
         }
       );
-      io.in(code).emit('player:seek', { positionSeconds: positionSeconds ?? 0 });
+      // Notify everyone except the sender to avoid echo
+      const payload = { positionSeconds: positionSeconds ?? 0, serverTime: Date.now() };
+      console.log('[io] player:seek -> room', code, payload);
+      socket.to(code).emit('player:seek', payload);
     } catch (err) {
       // eslint-disable-next-line no-console
       console.error('player:seek error', err);

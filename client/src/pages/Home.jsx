@@ -20,7 +20,8 @@ export default function Home() {
       const res = await apiPost('/api/rooms', { hostName: name.trim() });
       const roomCode = res?.room?.code || res?.code || res?.room?.code;
       navigate(`/room/${roomCode}`);
-    } catch {
+    } catch (err) {
+      console.error('[ui] createRoom failed', err);
       alert('Failed to create room');
     }
   };

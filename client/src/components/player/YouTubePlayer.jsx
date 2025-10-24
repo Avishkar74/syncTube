@@ -13,8 +13,27 @@ export default function YouTubePlayer() {
 
   const playerRef = useRef(null);
   const suppressRef = useRef(false); // avoid echo when applying remote updates
+  const suppressTimer = useRef(null);
 
   const [video, setVideo] = useState({ videoId: null, title: '' });
+  
+  // Try to start playback at the specified time; if autoplay is blocked, retry muted
+  const ensurePlayAt = (pos, serverTime) => {
+    const p = playerRef.current;
+    if (!p) return;
+    const drift = serverTime ? (Date.now() - serverTime) / 1000 : 0;
+    const target = Math.max(0, Math.floor((pos || 0) + drift));
+    p.seekTo(target, true);
+    p.playVideo();
+    // If browser blocks autoplay with sound, retry muted
+    setTimeout(() => {
+      const state = p.getPlayerState ? p.getPlayerState() : null;
+      if (state !== 1) {
+        p.mute?.();
+        p.playVideo();
+      }
+    }, 150);
+  };
 
   // Load initial room state
   useEffect(() => {
@@ -44,35 +63,53 @@ export default function YouTubePlayer() {
   useEffect(() => {
     if (!socket) return;
 
-    const onVideo = ({ videoId, title, positionSeconds, isPlaying }) => {
+    const onVideo = ({ videoId, title, positionSeconds, isPlaying, serverTime }) => {
+      console.log('[socket] player:video <-', { videoId, title, positionSeconds, isPlaying, serverTime });
       setVideo({ videoId, title: title || '' });
       if (playerRef.current && videoId) {
         suppressRef.current = true;
         const pos = Math.floor(positionSeconds || 0);
         playerRef.current.cueVideoById(videoId, pos);
-        if (isPlaying) playerRef.current.playVideo();
-        suppressRef.current = false;
+        if (isPlaying) {
+          // try to start; if blocked by autoplay policy, retry muted below
+          ensurePlayAt(pos, serverTime);
+        }
+        clearTimeout(suppressTimer.current);
+        suppressTimer.current = setTimeout(() => {
+          suppressRef.current = false;
+        }, 500);
       }
     };
-    const onPlay = ({ positionSeconds = 0 }) => {
+    const onPlay = ({ positionSeconds = 0, serverTime }) => {
+      console.log('[socket] player:play <-', { positionSeconds, serverTime });
       if (!playerRef.current) return;
       suppressRef.current = true;
-      playerRef.current.seekTo(positionSeconds, true);
-      playerRef.current.playVideo();
-      suppressRef.current = false;
+      ensurePlayAt(positionSeconds, serverTime);
+      clearTimeout(suppressTimer.current);
+      suppressTimer.current = setTimeout(() => {
+        suppressRef.current = false;
+      }, 600);
     };
     const onPause = ({ positionSeconds = 0 }) => {
+      console.log('[socket] player:pause <-', { positionSeconds });
       if (!playerRef.current) return;
       suppressRef.current = true;
       playerRef.current.seekTo(positionSeconds, true);
       playerRef.current.pauseVideo();
-      suppressRef.current = false;
+      clearTimeout(suppressTimer.current);
+      suppressTimer.current = setTimeout(() => {
+        suppressRef.current = false;
+      }, 400);
     };
     const onSeek = ({ positionSeconds = 0 }) => {
+      console.log('[socket] player:seek <-', { positionSeconds });
       if (!playerRef.current) return;
       suppressRef.current = true;
       playerRef.current.seekTo(positionSeconds, true);
-      suppressRef.current = false;
+      clearTimeout(suppressTimer.current);
+      suppressTimer.current = setTimeout(() => {
+        suppressRef.current = false;
+      }, 300);
     };
 
     socket.on('player:video', onVideo);
@@ -93,23 +130,21 @@ export default function YouTubePlayer() {
       autoplay: 0,
       controls: 1,
       rel: 0,
+      playsinline: 1,
     },
   };
 
   const onReady = (e) => {
     playerRef.current = e.target;
-    // If we already have a video id, cue it now
-    if (video.videoId) {
-      suppressRef.current = true;
-      playerRef.current.cueVideoById(video.videoId, 0);
-      suppressRef.current = false;
-    }
+    console.log('[yt] onReady');
+    // Intentionally do not auto-cue here; we rely on room snapshot/socket events
   };
 
   const emitWithPos = (eventName) => {
     if (!socket || !playerRef.current) return;
     if (suppressRef.current) return;
     const positionSeconds = Math.floor(playerRef.current.getCurrentTime?.() || 0);
+    console.log('[socket] emit ->', eventName, { positionSeconds });
     socket.emit(eventName, { code, positionSeconds });
   };
 
@@ -121,6 +156,7 @@ export default function YouTubePlayer() {
   const onStateChange = (e) => {
     // 3 = buffering; 1 = playing; 2 = paused
     const state = e?.data;
+    console.log('[yt] onStateChange', state);
     if (state === 3) {
       // user likely scrubbing; emit seek with current position
       emitWithPos('player:seek');

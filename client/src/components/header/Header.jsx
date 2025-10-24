@@ -8,6 +8,7 @@ export default function Header() {
 
   const handleSelectVideo = (item) => {
     if (!item?.videoId || !socket || !code) return;
+    console.log('[ui] select video', { code, videoId: item.videoId, title: item.title });
     socket.emit('player:set-video', { code, videoId: item.videoId, title: item.title });
   };
 

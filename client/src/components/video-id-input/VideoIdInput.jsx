@@ -30,17 +30,28 @@ export default function VideoIdInput({ onSelect }) {
   const [value, setValue] = useState('');
   const [loading, setLoading] = useState(false);
 
+  // Best-effort metadata fetch with a short timeout, but emit the videoId immediately
   const load = async () => {
     const id = extractVideoId(value);
     if (!id) return alert('Please enter a valid YouTube URL or Video ID');
+    console.log('[ui] load video', { raw: value, extractedId: id });
+
+    // Immediately emit selection so the player loads even if metadata fetch fails (e.g., YouTube blocks scraping)
+    onSelect?.({ videoId: id, title: '' });
+
+    // Attempt to resolve proper title/thumbnail in background; if it works, emit again to update title
     setLoading(true);
     try {
-      const res = await apiGet(`/api/youtube/${id}`);
+      const controller = new AbortController();
+      const t = setTimeout(() => controller.abort(), 4000); // 4s safeguard
+      const res = await apiGet(`/api/youtube/${id}`, { signal: controller.signal });
+      clearTimeout(t);
       const item = res?.data?.[0];
-      if (!item) throw new Error('Video not found');
-      onSelect?.(item);
-    } catch {
-      alert('Failed to load video');
+      console.log('[api] /api/youtube', { id, item });
+      if (item) onSelect?.(item);
+    } catch (err) {
+      console.warn('[api] /api/youtube failed (non-blocking)', err?.message || err);
+      // ignore failures; the immediate emit above already loaded the video
     } finally {
       setLoading(false);
     }

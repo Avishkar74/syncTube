@@ -11,6 +11,8 @@ exports.createRoom = async (req, res, next) => {
     if (!hostName || !hostName.trim()) {
       return res.status(400).json({ message: 'hostName required' });
     }
+    // Debug log to trace incoming room creation
+    console.log('[api] createRoom', { hostName });
 
     // Generate a unique room code with a few retries
     let code;
@@ -29,6 +31,7 @@ exports.createRoom = async (req, res, next) => {
       active: true,
     });
 
+    console.log('[api] createRoom:created', { code: room.code, id: room._id.toString() });
     res.status(201).json({ room });
   } catch (err) {
     next(err);

@@ -31,15 +31,12 @@ export default function ChatPanel() {
     };
   }, [code]);
 
-  // Socket wiring
+  // Socket wiring (listeners only; room join is handled at Room.jsx)
   useEffect(() => {
     if (!socket) return;
 
     const onConnect = () => setSocketId(socket.id);
     socket.on('connect', onConnect);
-
-    // join room
-    socket.emit('room:join', { code, name });
 
     const onChat = (msg) => setMessages((prev) => [...prev, msg]);
     const onUsers = (list) => setUsers(Array.isArray(list) ? list : []);
