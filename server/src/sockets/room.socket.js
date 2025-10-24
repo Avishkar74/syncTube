@@ -19,6 +19,17 @@ module.exports = function roomSocket(io, socket) {
     // Notify others and send back current users list
     socket.to(code).emit('room:user-joined', { id: user.id, name: user.name });
     io.in(code).emit('room:users', getRoomUsers(code));
+
+    // Send current video state to the newly joined user so they sync immediately
+    const v = room.currentVideo || {};
+    if (v && v.videoId) {
+      socket.emit('player:video', {
+        videoId: v.videoId,
+        title: v.title || '',
+        positionSeconds: Math.floor(v.positionSeconds || 0),
+        isPlaying: !!v.isPlaying,
+      });
+    }
   });
 
   socket.on('disconnect', () => {

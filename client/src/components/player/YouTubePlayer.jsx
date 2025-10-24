@@ -44,11 +44,13 @@ export default function YouTubePlayer() {
   useEffect(() => {
     if (!socket) return;
 
-    const onVideo = ({ videoId, title }) => {
+    const onVideo = ({ videoId, title, positionSeconds, isPlaying }) => {
       setVideo({ videoId, title: title || '' });
       if (playerRef.current && videoId) {
         suppressRef.current = true;
-        playerRef.current.cueVideoById(videoId, 0);
+        const pos = Math.floor(positionSeconds || 0);
+        playerRef.current.cueVideoById(videoId, pos);
+        if (isPlaying) playerRef.current.playVideo();
         suppressRef.current = false;
       }
     };
@@ -129,9 +131,9 @@ export default function YouTubePlayer() {
 
   return (
     <div className="w-full h-full bg-[#282828] rounded overflow-hidden">
-      {video.videoId ? (
-        <div style={{ position: 'relative', paddingTop: '56.25%' }}>
-          <div style={{ position: 'absolute', inset: 0 }}>
+      <div className="relative pt-[56.25%]">
+        <div className="absolute inset-0">
+          {video.videoId ? (
             <YouTube
               videoId={video.videoId || undefined}
               opts={opts}
@@ -140,11 +142,11 @@ export default function YouTubePlayer() {
               onPause={onPause}
               onStateChange={onStateChange}
             />
-          </div>
+          ) : (
+            <div className="w-full h-full flex justify-center items-center font-mono"><span className="text-white text-4xl">NO VIDEO</span></div>
+          )}
         </div>
-      ) : (
-        <div className="w-full h-full flex justify-center items-center font-mono"><span className="text-white text-4xl">NO VIDEO</span></div>
-      )}
+      </div>
     </div>
   );
 }

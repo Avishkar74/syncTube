@@ -26,13 +26,14 @@ export default function MessageList({ messages = [], currentId, currentName }) {
       {(!messages || messages.length === 0) ? (
         <p className="text-gray-400">No messages yet</p>
       ) : (
-        messages.map((m) => (
-          <ChatMessage
-            key={m.id || m._id || `${m.senderName}-${m.createdAt}-${m.text}`}
-            message={m}
-            isOwn={isOwn(m)}
-          />
-        ))
+        messages.map((m) => {
+          const own = isOwn(m);
+          return (
+            <div key={m.id || m._id || `${m.senderName}-${m.createdAt}-${m.text}`} className={`w-full flex ${own ? 'justify-end' : 'justify-start'}`}>
+              <ChatMessage message={m} isOwn={own} />
+            </div>
+          );
+        })
       )}
     </div>
   );
