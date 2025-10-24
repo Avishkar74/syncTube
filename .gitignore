@@ -32,3 +32,7 @@ coverage/
 *.pid
 *.seed
 *.tgz
+
+
+#
+Youtube-Sync/
