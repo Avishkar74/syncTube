@@ -219,6 +219,11 @@ export default function YouTubePlayer() {
     }
   };
 
+  const onError = (e) => {
+    // Common codes: 2 (invalid parameter), 5 (HTML5 error), 101/150 (embedding disabled)
+    console.error('[yt] error', e?.data);
+  };
+
   // Clock sync via time:ping/pong to estimate server-client offset
   useEffect(() => {
     if (!socket) return;
@@ -305,6 +310,7 @@ export default function YouTubePlayer() {
               onPlay={onPlay}
               onPause={onPause}
               onStateChange={onStateChange}
+              onError={onError}
             />
           ) : (
             <div className="w-full h-full flex justify-center items-center font-mono"><span className="text-white text-4xl">NO VIDEO</span></div>

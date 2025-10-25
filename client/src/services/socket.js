@@ -2,7 +2,9 @@ import { io } from 'socket.io-client';
 
 // Prefer same-origin so Vite dev proxy can forward to the API & WebSocket server.
 // Set VITE_SOCKET_URL in production if the socket server is on a different host.
-const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || undefined; // undefined => same-origin
+// Trim trailing slashes to avoid hitting //socket.io which some servers won't route.
+const RAW_SOCKET_URL = import.meta.env.VITE_SOCKET_URL || undefined; // undefined => same-origin
+const SOCKET_URL = RAW_SOCKET_URL ? RAW_SOCKET_URL.replace(/\/+$/, '') : undefined;
 
 let socketInstance = null;
 
@@ -11,10 +13,12 @@ export function getSocket() {
   // Let Socket.IO choose the best transport (polling fallback helps behind proxies)
   socketInstance = io(SOCKET_URL, {
     autoConnect: true,
+    withCredentials: true,
+    path: '/socket.io',
   });
   // Debug logging for connection lifecycle
   socketInstance.on('connect', () => {
-    console.log('[socket] connected', { id: socketInstance.id, url: SOCKET_URL || 'same-origin' });
+  console.log('[socket] connected', { id: socketInstance.id, url: SOCKET_URL || 'same-origin' });
   });
   socketInstance.on('connect_error', (err) => {
     console.error('[socket] connect_error', err?.message || err);
