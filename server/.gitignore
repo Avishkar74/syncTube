@@ -1,0 +1,16 @@
+# Server (Express/Socket.IO)
+node_modules/
+coverage/
+logs/
+*.log
+
+# Env (keep examples only)
+.env
+.env.*
+!.env.example
+
+# Runtime / temp
+*.pid
+*.pid.lock
+*.seed
+*.tmp

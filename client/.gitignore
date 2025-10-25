@@ -1,3 +1,18 @@
+# Client (Vite/React)
+node_modules/
+dist/
+.vite/
+.eslintcache
+
+# Env
+.env
+.env.*
+!.env.example
+
+# Logs/OS
+*.log
+.DS_Store
+Thumbs.db
 # Logs
 logs
 *.log
