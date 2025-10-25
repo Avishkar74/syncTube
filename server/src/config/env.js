@@ -5,7 +5,7 @@ try { require('dotenv').config(); } catch (_) {}
 // Support multiple allowed client origins via comma-separated list
 const CLIENT_ORIGINS = (process.env.CLIENT_ORIGINS
   || process.env.CLIENT_ORIGIN
-  || 'http://localhost:5173,https://synctubee.netlify.app')
+  || 'http://localhost:5173,https://synctubee.netlify.app,https://synctubeee.netlify.app')
   .split(',')
   .map((s) => s.trim())
   .filter(Boolean);
