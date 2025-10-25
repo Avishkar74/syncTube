@@ -5,11 +5,12 @@ const { Server } = require('socket.io');
 const { createApp } = require('./app');
 const { connectDB, disconnectDB } = require('./config/db');
 const { registerSockets } = require('./sockets');
+const env = require('./config/env');
 
 dotenv.config();
 
-const PORT = process.env.PORT || 3001;
-const CLIENT_ORIGIN = process.env.CLIENT_ORIGIN || '*';
+const PORT = env.PORT || 3001;
+const SOCKET_ORIGINS = env.CLIENT_ORIGINS && env.CLIENT_ORIGINS.length > 0 ? env.CLIENT_ORIGINS : (env.CLIENT_ORIGIN ? [env.CLIENT_ORIGIN] : ['*']);
 
 async function start() {
 	try {
@@ -18,13 +19,13 @@ async function start() {
 		const app = createApp();
 		const server = http.createServer(app);
 
-		const io = new Server(server, {
-			cors: {
-				origin: CLIENT_ORIGIN,
-				methods: ['GET', 'POST'],
-				credentials: true,
-			},
-		});
+			const io = new Server(server, {
+				cors: {
+					origin: SOCKET_ORIGINS,
+					methods: ['GET', 'POST'],
+					credentials: true,
+				},
+			});
 
 		registerSockets(io);
 
