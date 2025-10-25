@@ -1,0 +1,16 @@
+[build]
+  base = "client"
+  command = "npm run build"
+  publish = "dist"
+
+# Ensure client-side routing works (React Router)
+[[redirects]]
+  from = "/api/*"
+  to = "/api/:splat"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
