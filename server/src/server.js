@@ -22,12 +22,26 @@ async function start() {
 			const io = new Server(server, {
 				cors: {
 					origin: SOCKET_ORIGINS,
-					methods: ['GET', 'POST'],
+					methods: ['GET', 'POST', 'OPTIONS'],
 					credentials: true,
 				},
 			});
 
 		registerSockets(io);
+
+		// Surface useful diagnostics when the Engine.IO handshake fails
+		io.engine.on('connection_error', (err) => {
+			// eslint-disable-next-line no-console
+			console.error('[socket] connection_error', {
+				code: err.code,
+				message: err.message,
+				context: {
+					transport: err.context && err.context.transport,
+					origin: err.context && err.context.headers && err.context.headers.origin,
+					referer: err.context && err.context.headers && err.context.headers.referer,
+				},
+			});
+		});
 
 		server.listen(PORT, () => {
 			// eslint-disable-next-line no-console

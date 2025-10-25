@@ -5,6 +5,12 @@ import { io } from 'socket.io-client';
 // Trim trailing slashes to avoid hitting //socket.io which some servers won't route.
 const RAW_SOCKET_URL = import.meta.env.VITE_SOCKET_URL || undefined; // undefined => same-origin
 const SOCKET_URL = RAW_SOCKET_URL ? RAW_SOCKET_URL.replace(/\/+$/, '') : undefined;
+// Allow forcing transports/upgrade via env (useful on some hosts)
+const SOCKET_TRANSPORTS = (import.meta.env.VITE_SOCKET_TRANSPORTS || 'polling,websocket')
+  .split(',')
+  .map((s) => s.trim())
+  .filter(Boolean);
+const SOCKET_UPGRADE = (import.meta.env.VITE_SOCKET_UPGRADE || 'true').toLowerCase() !== 'false';
 
 let socketInstance = null;
 
@@ -15,10 +21,12 @@ export function getSocket() {
     autoConnect: true,
     withCredentials: true,
     path: '/socket.io',
+    transports: SOCKET_TRANSPORTS,
+    upgrade: SOCKET_UPGRADE,
   });
   // Debug logging for connection lifecycle
   socketInstance.on('connect', () => {
-  console.log('[socket] connected', { id: socketInstance.id, url: SOCKET_URL || 'same-origin' });
+  console.log('[socket] connected', { id: socketInstance.id, url: SOCKET_URL || 'same-origin', transports: SOCKET_TRANSPORTS, upgrade: SOCKET_UPGRADE });
   });
   socketInstance.on('connect_error', (err) => {
     console.error('[socket] connect_error', err?.message || err);
