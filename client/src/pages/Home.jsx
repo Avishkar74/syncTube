@@ -26,33 +26,62 @@ export default function Home() {
     }
   };
 
-  const joinRoom = () => {
+  const joinRoom = (e) => {
+    e?.preventDefault?.();
     if (!name.trim()) return alert('Please enter your name');
     if (!code.trim()) return alert('Enter a room code');
     navigate(`/room/${code.trim()}`);
   };
 
   return (
-    <section style={{ padding: 24, display: 'grid', gap: 16, maxWidth: 640, margin: '0 auto' }}>
-      <h1>Welcome to syncTube</h1>
-      <p>Create a room or join an existing one to start watching together.</p>
+    <div className="min-h-[calc(100vh-4rem)] bg-gradient-to-b from-gray-900 to-black text-gray-100 flex items-center justify-center px-4">
+      <section className="w-full max-w-2xl">
+        <div className="rounded-2xl border border-gray-800 bg-gray-900/60 shadow-xl backdrop-blur-sm p-6 sm:p-8">
+          <header className="mb-6 sm:mb-8 text-center">
+            <h1 className="text-3xl sm:text-4xl font-semibold tracking-tight">
+              <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-cyan-300">syncTube</span>
+            </h1>
+            <p className="mt-2 text-gray-400">Create a room or join one to watch YouTube together in sync.</p>
+          </header>
 
-      <div style={{ display: 'grid', gap: 8 }}>
-        <label>Your name</label>
-        <Input value={name} onChange={(e) => saveName(e.target.value)} placeholder="e.g., Alice" />
-      </div>
+          <div className="grid gap-6">
+            <div className="grid gap-2">
+              <label className="text-sm text-gray-300">Your name</label>
+              <Input
+                value={name}
+                onChange={(e) => saveName(e.target.value)}
+                placeholder="e.g., Alice"
+                className="bg-gray-800/70 border-gray-700"
+              />
+              <p className="text-xs text-gray-500">We’ll remember this on this device.</p>
+            </div>
 
-      <div style={{ display: 'flex', gap: 8 }}>
-        <Button onClick={createRoom}>Create room</Button>
-      </div>
+            <div className="flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
+              <div>
+                <h2 className="text-lg font-medium">Start a new room</h2>
+                <p className="text-sm text-gray-400">You’ll get a short code to share with friends.</p>
+              </div>
+              <Button onClick={createRoom} className="whitespace-nowrap px-4 py-2">Create room</Button>
+            </div>
 
-      <div style={{ display: 'grid', gap: 8 }}>
-        <label>Join with code</label>
-        <div style={{ display: 'flex', gap: 8 }}>
-          <Input value={code} onChange={(e) => setCode(e.target.value.toUpperCase())} placeholder="ABC123" />
-          <Button onClick={joinRoom}>Join</Button>
+            <div className="grid gap-3 pt-2">
+              <h2 className="text-lg font-medium">Join with a code</h2>
+              <form onSubmit={joinRoom} className="flex flex-col sm:flex-row gap-3">
+                <Input
+                  value={code}
+                  onChange={(e) => setCode(e.target.value.toUpperCase())}
+                  placeholder="ABC123"
+                  inputMode="text"
+                  className="uppercase tracking-wider"
+                />
+                <Button type="submit" className="px-4 py-2">Join</Button>
+              </form>
+            </div>
+          </div>
         </div>
-      </div>
-    </section>
+
+        <p className="mt-4 text-center text-xs text-gray-500">Tip: paste a YouTube link after entering the room.</p>
+      </section>
+    </div>
   );
 }
