@@ -1,6 +1,6 @@
 # syncTube — Watch YouTube together in sync
 
-Live demo: https://synctubeee.netlify.app/
+Live demo: <https://synctubeee.netlify.app/>
 
 syncTube lets you create a room, paste a YouTube link, and watch together with friends in perfect sync while chatting in real time. It’s a lightweight, modern stack with a small, maintainable codebase.
 
@@ -66,8 +66,8 @@ Client dev server runs on http://localhost:5173 and proxies API/socket to http:/
 - Build command: `npm run build`
 - Publish directory: `dist`
 - Env vars:
-	- `VITE_API_BASE_URL` = https://synctube-8veb.onrender.com
-	- `VITE_SOCKET_URL` = https://synctube-8veb.onrender.com
+	- `VITE_API_BASE_URL` = <https://synctube-8veb.onrender.com>
+	- `VITE_SOCKET_URL` = <https://synctube-8veb.onrender.com>
 	- `VITE_SOCKET_TRANSPORTS` = `polling` (recommended for Render)
 	- `VITE_SOCKET_UPGRADE` = `false`
 

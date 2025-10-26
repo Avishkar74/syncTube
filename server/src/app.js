@@ -24,7 +24,7 @@ function createApp() {
 
   // Health check
   app.get('/', (req, res) => {
-    res.send('Hello World! hiiiiiiiiiiiiiiiiiiiiiiiiiiiii');
+    res.send('syncTube backend is running.');
   });
 
   // 404 and error handlers
