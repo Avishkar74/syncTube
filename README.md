@@ -19,6 +19,14 @@ syncTube lets you create a room, paste a YouTube link, and watch together with f
 - Resync-on-reconnect and drift correction
 - Mobile-friendly layout
 
+## Screenshots
+
+![Home page](./Screenshot%202025-10-26%20155742.png)
+
+![Room view with player and chat](./Screenshot%202025-10-26%20160228.png)
+
+![Join/Create flow](./Screenshot%202025-10-26%20160250.png)
+
 ## Tech stack
 
 - Frontend: React 19, Vite 7, TailwindCSS, React Router, react-youtube, socket.io-client
@@ -33,7 +41,7 @@ syncTube lets you create a room, paste a YouTube link, and watch together with f
 
 ## Getting started (local)
 
-1) Clone and install
+1. Clone and install
 
 ```powershell
 # from repo root
@@ -41,12 +49,12 @@ cd client; npm install; cd ..
 cd server/src; npm install; cd ../..
 ```
 
-2) Configure env vars
+1. Configure env vars
 
 - Copy `client/.env.example` to `client/.env` and set values
 - Copy `server/.env.example` to `server/src/.env` and set values
 
-3) Run both apps
+1. Run both apps
 
 ```powershell
 # terminal 1 (client)
@@ -56,7 +64,7 @@ cd client; npm run dev
 cd server/src; npm run start
 ```
 
-Client dev server runs on http://localhost:5173 and proxies API/socket to http://localhost:3001 when configured.
+Client dev server runs on <http://localhost:5173> and proxies API/socket to <http://localhost:3001> when configured.
 
 ## Deploy
 
@@ -66,10 +74,10 @@ Client dev server runs on http://localhost:5173 and proxies API/socket to http:/
 - Build command: `npm run build`
 - Publish directory: `dist`
 - Env vars:
-	- `VITE_API_BASE_URL` = <https://synctube-8veb.onrender.com>
-	- `VITE_SOCKET_URL` = <https://synctube-8veb.onrender.com>
-	- `VITE_SOCKET_TRANSPORTS` = `polling` (recommended for Render)
-	- `VITE_SOCKET_UPGRADE` = `false`
+  - `VITE_API_BASE_URL` = <https://synctube-8veb.onrender.com>
+  - `VITE_SOCKET_URL` = <https://synctube-8veb.onrender.com>
+  - `VITE_SOCKET_TRANSPORTS` = `polling` (recommended for Render)
+  - `VITE_SOCKET_UPGRADE` = `false`
 
 Note: do not include trailing slashes in the URLs.
 
@@ -77,7 +85,7 @@ Note: do not include trailing slashes in the URLs.
 
 - Use Node service, auto-start `node server.js` from `server/src/` (already configured)
 - Important env vars (see `server/src/.env.example`):
-	- `MONGODB_URI`, `PORT=10000` (Render assigns), `CLIENT_ORIGINS` (comma-separated origins: localhost:5173, Netlify URL, Render URL)
+  - `MONGODB_URI`, `PORT=10000` (Render assigns), `CLIENT_ORIGINS` (comma-separated origins: localhost:5173, Netlify URL, Render URL)
 - Socket path is `/socket.io` with CORS enabled for the same origins.
 - Logs include detailed handshake errors to help diagnose any connect issues.
 
